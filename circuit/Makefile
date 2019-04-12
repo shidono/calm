@@ -1,2 +1,0 @@
-game:hack.c
-	gcc hack.c -o prog -lSDL -lSDL_image -lSDL_mixer -lSDL_ttf
