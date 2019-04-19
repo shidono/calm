@@ -1,0 +1,89 @@
+#include <stdio.h>
+#include "SDL/SDL.h"
+#include "SDL/SDL_image.h"
+#include "SDL/SDL_mixer.h"
+int main(void){
+    SDL_Surface *screen;
+    SDL_Surface *image;
+    SDL_Surface *detective;
+    SDL_Rect positionecran,positiondetective;
+    SDL_Event event;
+    char pause;
+    if(SDL_Init(SDL_INIT_VIDEO) != 0){
+        printf("Unable to initialize SDL: %s\n", SDL_GetError());
+        return -1;
+    }
+    screen = SDL_SetVideoMode(600, 400, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+    if(screen == NULL){
+        printf("Unable to set video mode: %s\n", SDL_GetError());
+        return -1;
+    }
+    image = SDL_LoadBMP("background.bmp");
+    if(image == NULL){
+        printf("Unable to load bitmap: %s\n", SDL_GetError());
+        return 1;0.0
+
+    }
+    detective = IMG_Load("detective.png");
+    if(detective == NULL){
+	printf("unable to load character : %s\n", SDL_GetError());
+	return 1;
+    }
+    positionecran.x = 0;
+    positionecran.y = 0;
+    positionecran.w = image->w;
+    positionecran.h = image->h;
+    positiondetective.x = 10;
+    positiondetective.y = 220;
+    positiondetective.w = detective->w;
+    positiondetective.h = detective->h;
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT,MIX_DEFAULT_CHANNELS,1024) == -1){
+    	printf("%s",Mix_GetError());
+    }
+    Mix_Music *music;
+    music = Mix_LoadMUS("music.mp3");
+    Mix_PlayMusic(music,-1);
+    int done = 1;
+    while(done){
+	SDL_BlitSurface(image,NULL,screen,&positionecran);
+        SDL_BlitSurface(detective,NULL,screen,&positiondetective);
+	SDL_Flip(screen);
+	Uint32 colorkey = SDL_MapRGB( detective->format,0xFF, 0xFF, 0xFF);
+	SDL_SetColorKey(detective,SDL_SRCCOLORKEY,colorkey);
+	while(SDL_PollEvent(&event))
+	{    //check for messages
+			switch(event.type){
+			//exit if the window is closed
+			case SDL_QUIT:
+			     SDL_Quit();
+			break;
+			//check for keypresses
+			case SDL_KEYDOWN:
+			{
+				//exit if ESCAPE is pressed
+			     switch(event.key.keysym.sym){
+				case SDLK_ESCAPE:
+					SDL_Quit();
+					break;
+			        case SDLK_RIGHT:
+				      if(positiondetective.x < 550){
+			                 positiondetective.x+=10;
+				      }
+			              break;
+				case SDLK_LEFT:
+			   	      if(positiondetective.x > 0){
+			                 positiondetective.x-=10;
+				      }
+			    	      break;
+				
+				}
+			}
+		}//end switch
+	}//end of message processing	
+    }
+  Mix_FreeMusic(music);
+  SDL_FreeSurface(image);
+  SDL_FreeSurface(detective);
+  pause = getchar();
+  return 0;
+}
